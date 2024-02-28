@@ -10,8 +10,8 @@ public class playerController : MonoBehaviour
     Vector2 jumpVector = Vector2.zero;
     Rigidbody2D rBody;
 
-    public float speed = 5;
-    public float jumpSpeed = 2;
+    public float speed;
+    public float jumpForce;
     private float horizontalInput;
     private float verticalInput;
 
@@ -34,7 +34,14 @@ public class playerController : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            GetComponent<Rigidbody2D>().velocity += jumpSpeed * Vector2.up;
+            GetComponent<Rigidbody2D>().velocity += jumpForce * Vector2.up;
         }
+    }
+
+    private bool IsGrounded()
+    {
+        //float height = 1f;
+        //RaycastHit2D hit = Physics2D.BoxCast(GetComponent<SpriteRenderer>().sprite.bounds.center, GetComponent<SpriteRenderer>().sprite.bounds.size, 0f, Vector2.down, height, platfo
+        return false;
     }
 }
