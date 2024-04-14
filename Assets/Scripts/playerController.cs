@@ -9,6 +9,7 @@ public class playerController : MonoBehaviour
     Vector2 moveVector = Vector2.zero;
     Vector2 jumpVector = Vector2.zero;
     Rigidbody2D rBody;
+    public float friction;
 
     public float speed;
     public float jumpForce;
@@ -16,6 +17,9 @@ public class playerController : MonoBehaviour
     public Vector2 boxSize;
     public float castDistance;
     public LayerMask groundLayer;
+    public float maxSpeed;
+
+    public Transform playerAnticipator;
 
     // Start is called before the first frame update
     void Start()
@@ -29,13 +33,31 @@ public class playerController : MonoBehaviour
     void Update()
     {
         horizontalInput = Input.GetAxis("Horizontal");
-
+        /*rBody.velocity += Vector2.right * speed * horizontalInput;
+        
+        if(rBody.velocity.x > maxSpeed)
+        {
+            rBody.velocity = new Vector2(maxSpeed, rBody.velocity.y);
+        }
+        if(rBody.velocity.x < -maxSpeed)
+        {
+            rBody.velocity = new Vector2(-maxSpeed, rBody.velocity.y);
+        }*/
+        //rBody.velocity += (Vector2.right * Time.deltaTime * speed * horizontalInput);
         transform.Translate(Vector2.right * Time.deltaTime * speed * horizontalInput);
 
         if (Input.GetKeyDown(KeyCode.Space) && IsGrounded())
         {
             GetComponent<Rigidbody2D>().velocity += jumpForce * Vector2.up;
         }
+
+        playerAnticipator.position = (Vector2)transform.position + /*rBody.velocity*/ moveVector*horizontalInput;
+        /*
+        if(horizontalInput == 0)
+        {
+
+            rBody.velocity *= friction;
+        }*/
     }
 
     private bool IsGrounded()

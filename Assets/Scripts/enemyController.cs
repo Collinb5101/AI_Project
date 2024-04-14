@@ -1,4 +1,3 @@
-using Pathfinding;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,6 +7,8 @@ public class enemyController : MonoBehaviour
 {
     [Header("AI")]
     public Transform target;
+    public Transform playerLocation;
+    public Transform playerAnticipatorLocation;
     public float activationDistance;
     public float pathUpdateSpeed;
 
@@ -35,20 +36,30 @@ public class enemyController : MonoBehaviour
     {
         seeker = GetComponent<Seeker>();    
         rb = GetComponent<Rigidbody2D>();
+        target = playerAnticipatorLocation;
 
         InvokeRepeating("UpdatePath", 0f, pathUpdateSpeed);
     }
     private void FixedUpdate()
     {
-        if(TargetInRange() && isFollowing)
+        if (Vector2.Distance(transform.position, playerLocation.position) <= activationDistance)
+        {
+            target = playerLocation;
+        }
+        else
+        {
+           target = playerAnticipatorLocation;
+        }
+        FollowPlayer();
+        /*if(TargetInRange() && isFollowing)
         {
             FollowPlayer();
-        }
+        }*/
     }
 
     private void UpdatePath()
     {
-        if(isFollowing && TargetInRange() && seeker.IsDone())
+        if(isFollowing /*&& TargetInRange()*/ && seeker.IsDone())
         {
             seeker.StartPath(rb.position, target.position, OnPathComplete);
 
@@ -76,7 +87,7 @@ public class enemyController : MonoBehaviour
         {
             if(direction.y > jumpNodeHeight)
             {
-                rb.AddForce(Vector2.up * speed * jumpHeight);
+                rb.AddForce(Vector2.up * jumpHeight);
             }
         }
 
