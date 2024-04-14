@@ -13,7 +13,9 @@ public class playerController : MonoBehaviour
     public float speed;
     public float jumpForce;
     private float horizontalInput;
-    private float verticalInput;
+    public Vector2 boxSize;
+    public float castDistance;
+    public LayerMask groundLayer;
 
     // Start is called before the first frame update
     void Start()
@@ -27,12 +29,10 @@ public class playerController : MonoBehaviour
     void Update()
     {
         horizontalInput = Input.GetAxis("Horizontal");
-        verticalInput = Input.GetAxis("Vertical");
 
         transform.Translate(Vector2.right * Time.deltaTime * speed * horizontalInput);
-        transform.Translate(Vector2.up * Time.deltaTime * speed * verticalInput);
 
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) && IsGrounded())
         {
             GetComponent<Rigidbody2D>().velocity += jumpForce * Vector2.up;
         }
@@ -40,8 +40,15 @@ public class playerController : MonoBehaviour
 
     private bool IsGrounded()
     {
-        //float height = 1f;
-        //RaycastHit2D hit = Physics2D.BoxCast(GetComponent<SpriteRenderer>().sprite.bounds.center, GetComponent<SpriteRenderer>().sprite.bounds.size, 0f, Vector2.down, height, platfo
+        if(Physics2D.BoxCast(transform.position, boxSize, 0, -transform.up, castDistance, groundLayer))
+        {
+            return true;
+        }
         return false;
+    }
+
+    private void OnDrawGizmos()
+    {
+        //Gizmos.DrawWireCube(transform.position - transform.up * castDistance, boxSize);
     }
 }
