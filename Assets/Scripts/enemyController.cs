@@ -2,13 +2,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Pathfinding;
+using Unity.VisualScripting;
+using UnityEngine.UIElements;
 
 public class enemyController : MonoBehaviour
 {
+    
+
     [Header("AI")]
-    public Transform target;
+    private Transform target;
     public Transform playerLocation;
     public Transform playerAnticipatorLocation;
+    public Transform fleeLocation;
     public float activationDistance;
     public float pathUpdateSpeed;
 
@@ -31,9 +36,16 @@ public class enemyController : MonoBehaviour
     private Seeker seeker;
     Rigidbody2D rb;
 
+    private float timer;
+    private Vector2 lastPosition;
+    private bool hiding = false;
+
     // Start is called before the first frame update
     void Start()
     {
+        transform.position = new Vector2(Random.Range(-33, 33), Random.Range(-33, 33));
+        lastPosition = transform.position;
+
         seeker = GetComponent<Seeker>();    
         rb = GetComponent<Rigidbody2D>();
         target = playerAnticipatorLocation;
@@ -42,7 +54,15 @@ public class enemyController : MonoBehaviour
     }
     private void FixedUpdate()
     {
-        if (Vector2.Distance(transform.position, playerLocation.position) <= activationDistance)
+        if(target == fleeLocation)
+        {
+            if(Vector2.Distance(transform.position, target.position) <= 5 && !hiding)
+            {
+                hiding = true;
+                timer = 0;
+            }
+        }
+        else if (Vector2.Distance(transform.position, playerLocation.position) <= activationDistance)
         {
             target = playerLocation;
         }
@@ -50,23 +70,42 @@ public class enemyController : MonoBehaviour
         {
            target = playerAnticipatorLocation;
         }
-        FollowPlayer();
-        /*if(TargetInRange() && isFollowing)
+
+        if(!hiding)
         {
-            FollowPlayer();
-        }*/
+            FollowTarget();
+        }
+        
+
+        timer += Time.deltaTime;
+
+        if(timer >= 3 && !hiding)
+        {
+            if(Vector2.Distance(lastPosition, transform.position) <= 3)
+            {
+                transform.position = new Vector2(transform.position.x + Random.Range(-1, 1), transform.position.y + Random.Range(-1, 1));
+            }
+
+            lastPosition = transform.position;
+            timer = 0;
+        }
+        else if (timer >= 3 && hiding)
+        {
+            hiding = false;
+            target = playerAnticipatorLocation;
+        }
     }
 
     private void UpdatePath()
     {
-        if(isFollowing /*&& TargetInRange()*/ && seeker.IsDone())
+        if(isFollowing&& seeker.IsDone())
         {
             seeker.StartPath(rb.position, target.position, OnPathComplete);
 
         }
     }
 
-    private void FollowPlayer()
+    private void FollowTarget()
     {
         if(path == null)
         {
@@ -100,10 +139,6 @@ public class enemyController : MonoBehaviour
         }
     }
 
-    private bool TargetInRange()
-    {
-        return Vector2.Distance(transform.position, target.transform.position) < activationDistance;
-    }
 
     private void OnPathComplete(Path path)
     {
@@ -111,6 +146,15 @@ public class enemyController : MonoBehaviour
         {
             this.path = path;
             currentWaypoint = 0;
+        }
+    }
+   
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject == playerLocation.gameObject)
+        {
+            fleeLocation.position = new Vector2(Random.Range(-33, 33), Random.Range(-33, 33));
+            target = fleeLocation;
         }
     }
 }
