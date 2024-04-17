@@ -20,6 +20,7 @@ public class canvasController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //if the player has died
         textHealth.text = playerController.playerHealth.ToString();
         if(playerController.playerHealth <= 0 )
         {
@@ -27,12 +28,14 @@ public class canvasController : MonoBehaviour
             gameOverScreen.enabled = true;
             textGameOver.enabled = true;
         }
+        //if the player has reached the exit
         else if(playerController.GameWin)
         {
             textGameOver.text = "u win :)";
             gameOverScreen.enabled = true;
             textGameOver.enabled = true;
         }
+        //otherwise keep from drawing screen
         else
         {
             gameOverScreen.enabled = false;

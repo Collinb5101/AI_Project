@@ -46,6 +46,7 @@ public class playerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //if the player got hit then blink rend
         if(gotHit)
         {
             timer += Time.deltaTime;
@@ -56,37 +57,27 @@ public class playerController : MonoBehaviour
                 timer = 0;
             }
         }
+
+        //get the horizontal input of the player
         horizontalInput = Input.GetAxis("Horizontal");
 
-        /*rBody.velocity += Vector2.right * speed * horizontalInput;
-        
-        if(rBody.velocity.x > maxSpeed)
-        {
-            rBody.velocity = new Vector2(maxSpeed, rBody.velocity.y);
-        }
-        if(rBody.velocity.x < -maxSpeed)
-        {
-            rBody.velocity = new Vector2(-maxSpeed, rBody.velocity.y);
-        }*/
-        //rBody.velocity += (Vector2.right * Time.deltaTime * speed * horizontalInput);
+        //translate the player based on the movement vector and the speed and the horizontal input
         transform.Translate(Vector2.right * Time.deltaTime * speed * horizontalInput);
 
+        //if the player is grounded they can jump
         if (Input.GetKeyDown(KeyCode.Space) && IsGrounded())
         {
             GetComponent<Rigidbody2D>().velocity += jumpForce * Vector2.up;
         }
 
-        playerAnticipator.position = (Vector2)transform.position + /*rBody.velocity*/ moveVector*horizontalInput*2;
-        /*
-        if(horizontalInput == 0)
-        {
-
-            rBody.velocity *= friction;
-        }*/
+        //update the position of the player anticipator
+        playerAnticipator.position = (Vector2)transform.position + moveVector*horizontalInput*2;
+        
     }
 
     private bool IsGrounded()
     {
+        //check if the player is touching the ground layer
         if(Physics2D.BoxCast(transform.position, boxSize, 0, -transform.up, castDistance, groundLayer))
         {
             return true;
@@ -101,8 +92,10 @@ public class playerController : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
+        //collision checking for the enemy hitting the player
         if(collision.gameObject == enemy)
         {
+            //if the player got hit then blink red and lose health
             gotHit = true;
             gameObject.GetComponent<SpriteRenderer>().color = Color.red;
             playerHealth--;
@@ -111,6 +104,7 @@ public class playerController : MonoBehaviour
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        //if the player hit the exit then they win
         if (collision.gameObject == exit)
         {
             gameWin = true;
